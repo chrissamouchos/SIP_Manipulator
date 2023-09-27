@@ -54,14 +54,11 @@ int main(int argc, char** argv){
 		}
 
 		for(int i = 0; i < 3; i++)
-		args[i] = (unsigned char*)strtok(line, delim);	/*Parse data with respect to delim character*/
+			args[i] = (unsigned char*)strtok(line, ",");	/*Parse data with respect to delim character*/
 		line = NULL;
-	
 
-
-		free(temp);
-		
-
+		free(temp);	
+	}
 	for(int i = 0; i < 6; i++)
 		free(parsed_data[i]);
 
