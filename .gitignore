@@ -1,0 +1,4 @@
+*.DB
+*.c
+*.out
+bin/*.out

@@ -23,13 +23,23 @@ int line_counter(char* input){
 	int value;
 
 	while((value = fgetc(fp)) != EOF){	/*Each time new line is found increase counter*/
-		if(value == '\n')	counter++;
+		
+		if(value == '\n')
+			counter++;
 	}
 	
 	fclose(fp);							/*Close file and free allocated space*/
 	return counter;
 }
 
-int parse(char* line){
-	 char * token = strtok(line, " ");
+
+DB create_db(char* name){
+	DB myDB = NULL;
+	int rc = sqlite3_open(name, &myDB);
+
+	if(rc){
+		fprintf(stderr, "Error: Cannot open/create database -> %s \t Code: %s\n", name, sqlite3_errmsg(myDB));
+		return 0;	
+	}
+	return myDB;
 }

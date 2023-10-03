@@ -27,44 +27,56 @@ int main(int argc, char** argv){
 	}
 	/*---------------End of Options Parsing----------------*/
 
-	if(!input_file){		/*Check if input file is not given, print error, terminate*/
+	if(!input_file){ /*Check if input file is not given, print error, terminate*/
 		printf("Input file is mandatory, none was given\n");
 		return 1;
 	}
 
-	size_t size;
-	char** args;
+	// size_t size;
+	// char** args = NULL;
+	// char * token, *line, *start, *end = NULL;
 
-	int num_of_lines = line_counter(input_file);
-	FILE* fp = fopen(input_file, "r"); 	/*Open input file to parse it's data*/
-	char* line = NULL;					/*Temporary store read string		*/
-	char* temp, *tok;
+	// int num_of_lines = line_counter(input_file);
+	// FILE* fp = fopen(input_file, "r"); 	/*Open input file to parse it's data*/
+	 
+	// while (getline(&line, &size, fp) != -1) {
+	// // Split the line using ':' delimiter
+	// 	token = strtok(line, ":");
+        
+    //     if (token != NULL) {
+    //         // Extract the second string (token)
+    //         token = strtok(NULL, ":");
+    //         if (token != NULL) {
 
-	char** parsed_data = malloc(sizeof(char*)*6);
+    //             // Remove leading and trailing spaces from the extracted string
+    //             start = token;
 
-	for(int i = 0; i < num_of_lines; i++){
-		line = NULL;				/*No space to store string 		*/
-		size = 0;					/*0 size of non-existing string */
-		getline(&line, &size, fp);	/*Read line by line 			*/
-		
-		for(int j = 0; j < 2; j++){
-			tok = strtok(temp, ":");
-			printf("%s \n", tok);
-			parsed_data[i] = strtok(temp, ":");
-		}
+    //             while (*start && (*start == ' ' || *start == '\t' || *start == '\n')){
+    //                 start++;
+    //             }
 
-		for(int i = 0; i < 3; i++)
-			args[i] = (unsigned char*)strtok(line, ",");	/*Parse data with respect to delim character*/
-		line = NULL;
+    //             end = start + strlen(start) - 1;
 
-		free(temp);	
-	}
-	for(int i = 0; i < 6; i++)
-		free(parsed_data[i]);
+    //             while (end > start && (*end == ' ' || *end == '\t' || *end == '\n')) {
+    //                 end--;
+    //             }
 
-	free(parsed_data);
-	fclose(fp);
+    //             end[1] = '\0'; // Null-terminate the string
+    //             printf("%s\n", start);
+    //         }
+    //     }
+    // }
+
+    // // Close the file and free allocated memory
+    // fclose(fp);
+
+    // if (line) {
+    //     free(line);
+    // }
 	
+    DB db = create_db("myDB");
+
+    sqlite3_close(db);
 
 	return 0;
 }

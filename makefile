@@ -10,7 +10,7 @@ INPUT = ./input/res.txt
 CC = gcc
 
 # Compile options. -I<dir> guides the compiler to look there for "include" files
-CFLAGS = -I$(INCLUDE_PATH) -pg
+CFLAGS = -I$(INCLUDE_PATH) -pg -lsqlite3
 
 #Define the dependencies
 DEP = 	main.c \
@@ -55,4 +55,4 @@ profiling:
 
 #Clean workspace
 clean:
-	rm -f $(OBJS) $(EXEC) $(PROF)
+	rm -f $(OBJS) $(EXEC) $(PROF) myDB
