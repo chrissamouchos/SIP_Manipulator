@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <sqlite3.h> /*Include SQLite library*/
 /*---------- End of System Libraries --------------*/
 
 /*---------- Start of Custom Libraries ------------*/
@@ -11,73 +12,86 @@
 
 /*---------- Start of Main function ---------------*/
 int main(int argc, char** argv){
-	printf("Start of execution...\n");
-	char* input_file = NULL;
-	int c;
+    printf("Start of execution...\n");
+    char* input_file = NULL;
+    int c;
 
-	/* -------------Get Options of Command line--------------*/
-	while( (c = getopt(argc,argv,"i:")) != -1){
-		switch(c){
-			case 'i':
-				input_file = optarg;
-				break;
-			case '?':
-				return 1;
-		}	
-	}
-	/*---------------End of Options Parsing----------------*/
+    /* -------------Get Options of Command line--------------*/
+    while ((c = getopt(argc, argv, "i:")) != -1) {
+        switch (c) {
+            case 'i':
+                input_file = optarg;
+                break;
+            case '?':
+                return 1;
+        }
+    }
+    /*---------------End of Options Parsing----------------*/
 
-	if(!input_file){ /*Check if input file is not given, print error, terminate*/
-		printf("Input file is mandatory, none was given\n");
-		return 1;
-	}
+    if (!input_file) { /*Check if the input file is not given, print error, terminate*/
+        printf("Input file is mandatory, none was given\n");
+        return 1;
+    }
 
-	// size_t size;
-	// char** args = NULL;
-	// char * token, *line, *start, *end = NULL;
+    size_t size;
+    char** data_array = malloc(sizeof(char*) * 9);
 
-	// int num_of_lines = line_counter(input_file);
-	// FILE* fp = fopen(input_file, "r"); 	/*Open input file to parse it's data*/
-	 
-	// while (getline(&line, &size, fp) != -1) {
-	// // Split the line using ':' delimiter
-	// 	token = strtok(line, ":");
-        
-    //     if (token != NULL) {
-    //         // Extract the second string (token)
-    //         token = strtok(NULL, ":");
-    //         if (token != NULL) {
+    FILE* fp = fopen(input_file, "r"); /*Open the input file to parse its data*/
 
-    //             // Remove leading and trailing spaces from the extracted string
-    //             start = token;
+    DB db = create_db("myDB");         /*Create or open db 	*/
+    int r = create_SIP_table(db);      /*Create SIP table 	*/
 
-    //             while (*start && (*start == ' ' || *start == '\t' || *start == '\n')){
-    //                 start++;
-    //             }
+    if (db == NULL || r < 0) 			/*Sanity Check 		*/
+        return -1;
 
-    //             end = start + strlen(start) - 1;
+    int index = -1;
+    char* line = NULL;
 
-    //             while (end > start && (*end == ' ' || *end == '\t' || *end == '\n')) {
-    //                 end--;
-    //             }
+    while (getline(&line, &size, fp) != -1) {
+        index++;
+        /*Split the line using ':' delimiter*/
+        char* token = strtok(line, ":");
 
-    //             end[1] = '\0'; // Null-terminate the string
-    //             printf("%s\n", start);
-    //         }
-    //     }
-    // }
+        if (token != NULL) {
+            /*Extract the second string (token)*/
+            token = strtok(NULL, ":");
 
-    // // Close the file and free allocated memory
-    // fclose(fp);
+            if (token != NULL) {
+                /*Remove leading and trailing spaces from the extracted string*/
+                char* start = token;
+                while (*start && (*start == ' ' || *start == '\t' || *start == '\n')) {
+                    start++;
+                }
 
-    // if (line) {
-    //     free(line);
-    // }
-	
-    DB db = create_db("myDB");
+                char* end = start + strlen(start) - 1;
+                while (end > start && (*end == ' ' || *end == '\t' || *end == '\n')) {
+                    end--;
+                }
+                end[1] = '\0'; /*Null-terminate the string*/
 
-    sqlite3_close(db);
+                if (index < 9)
+                    data_array[index] = strdup(start);
+            }
+        }
+    }
 
-	return 0;
+    if(insert_into_SIP(db, data_array) < 0)
+    	return -1;
+
+    /*Close the file and free allocated memory*/
+    fclose(fp);
+
+    if (line)
+        free(line);
+
+    sqlite3_close(db); /*Close the db connection*/
+
+    for (int i = 0; i < 9; i++)
+        free(data_array[i]);
+
+    free(data_array);
+    printf("Free all allocated memory...\n");
+
+    return 0;
 }
 /*---------- End of Main function ----------------*/
