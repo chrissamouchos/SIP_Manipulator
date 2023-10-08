@@ -20,4 +20,6 @@ DB create_db(char* name);	/*Create in current directory name.DB 	*/
 int create_SIP_table(DB myDB);	/*execute specific create table 	*/
 
 int insert_into_SIP(DB myDB, char** data_array);
+
+void select_all(DB myDB);
 /*-------------------- End of DB ---------------------------*/

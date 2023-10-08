@@ -38,45 +38,34 @@ int main(int argc, char** argv){
 
     FILE* fp = fopen(input_file, "r"); /*Open the input file to parse its data*/
 
-    DB db = create_db("myDB");         /*Create or open db 	*/
-    int r = create_SIP_table(db);      /*Create SIP table 	*/
+    DB db = create_db("myDB");         	/*Create or open db */
+    int r = create_SIP_table(db);     	/*Create SIP table 	*/
 
     if (db == NULL || r < 0) 			/*Sanity Check 		*/
         return -1;
 
-    int index = -1;
-    char* line = NULL;
+    char* line = NULL;	/*Pointer to store line 	*/
+    char* ret = NULL;	/*Return pointer for ":" 	*/
 
-    while (getline(&line, &size, fp) != -1) {
-        index++;
-        /*Split the line using ':' delimiter*/
-        char* token = strtok(line, ":");
-
-        if (token != NULL) {
-            /*Extract the second string (token)*/
-            token = strtok(NULL, ":");
-
-            if (token != NULL) {
-                /*Remove leading and trailing spaces from the extracted string*/
-                char* start = token;
-                while (*start && (*start == ' ' || *start == '\t' || *start == '\n')) {
-                    start++;
-                }
-
-                char* end = start + strlen(start) - 1;
-                while (end > start && (*end == ' ' || *end == '\t' || *end == '\n')) {
-                    end--;
-                }
-                end[1] = '\0'; /*Null-terminate the string*/
-
-                if (index < 9)
-                    data_array[index] = strdup(start);
-            }
-        }
+    for(int i = 0; i < 9; i++){
+        getline(&line, &size, fp);
+        ret = strstr(line, ":");
+        
+        /* Search First row for ":" */
+        if(i == 0 && ret != NULL)
+        	data_array[0] = strdup("REQUEST");
+        
+        else if(i == 0 && ret == NULL)
+        	data_array[0] = strdup("RESPONSE");
+        
+        else if(i != 0 && ret != NULL)
+        	data_array[i] = strdup(ret+2);	/*add 2 in order to avoid ": " and store plain info*/
     }
 
     if(insert_into_SIP(db, data_array) < 0)
     	return -1;
+
+    select_all(db);
 
     /*Close the file and free allocated memory*/
     fclose(fp);
@@ -87,7 +76,7 @@ int main(int argc, char** argv){
     sqlite3_close(db); /*Close the db connection*/
 
     for (int i = 0; i < 9; i++)
-        free(data_array[i]);
+       free(data_array[i]);
 
     free(data_array);
     printf("Free all allocated memory...\n");

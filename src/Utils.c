@@ -98,3 +98,44 @@ int insert_into_SIP(DB myDB, char** data_array){
 	sqlite3_finalize(stmt); /*When you're done with a prepared statement and want to release associated resources*/
 	return 0;
 }
+
+void select_all(DB myDB){
+	sqlite3_stmt* stmt;
+	const char* select = "SELECT * FROM SIP_MESSAGE;";
+
+	int rc = sqlite3_prepare_v2(myDB, select, -1, &stmt, NULL);
+	
+	if (rc != SQLITE_OK){
+    	fprintf(stderr, "Failed to prepare statement: %s\n", sqlite3_errmsg(myDB));
+    	return;
+	}
+
+	int id = -1;
+	const unsigned char *type, *via, *from, *to, *call_id, *cseq, *max_forwards, *content_type, * content_length;
+	
+	while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+    	/*Retrieve data from the current row*/
+    	id 				= sqlite3_column_int(stmt, 0);
+    	type 			= sqlite3_column_text(stmt, 1);
+    	via 			= sqlite3_column_text(stmt, 2);
+    	from 			= sqlite3_column_text(stmt, 3);
+    	to 				= sqlite3_column_text(stmt, 4);
+    	call_id 		= sqlite3_column_text(stmt, 5);
+    	cseq 			= sqlite3_column_text(stmt, 6);
+    	max_forwards 	= sqlite3_column_text(stmt, 7);
+    	content_type 	= sqlite3_column_text(stmt, 8);
+    	content_length 	= sqlite3_column_text(stmt, 9);
+
+	   	// Process or print the retrieved data as needed
+    	// printf("%d\t%s\n", id, type );
+    	printf("ID:%d\nTYPE:%s\nVIA:%sFROM:%sTO:%sCALL_ID:%sCSEQ:%sMAX_FORWARDS:%sCONTENT_TYPE%sCONTENT_LENGTH%s\n", id, type, via, from, to, call_id, cseq, max_forwards, content_type, content_length);
+	}
+
+	/*Check for errors or end of data*/
+	if (rc != SQLITE_DONE)
+    	fprintf(stderr, "Error reading data: %s\n", sqlite3_errmsg(myDB));
+	
+	
+	sqlite3_finalize(stmt);
+	return;
+}
