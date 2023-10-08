@@ -4,19 +4,6 @@
 
 #include "Utils.h"
 
-void red(){
- 	printf("\033[1;31m");
-}
-
-void green(){
-	printf("\033[1;32m");
-}
-
-void reset(){
- 	printf("\033[0m");
-}
-
-
 int line_counter(char* input){
 	FILE* fp = fopen(input, "r");		/*Create pointer to opened file*/
 	int counter = 0;
@@ -61,10 +48,10 @@ int create_SIP_table(DB myDB){
         " 	Content_Type TEXT,"
         " 	Content_Length TEXT);" ;
 
-    // Execute the SQL statement to create the table
+    /* Execute the SQL statement to create the table */
     rc = sqlite3_exec(myDB, createTableSQL, 0, 0, &errMsg);
 
-    if (rc != SQLITE_OK) {
+    if (rc != SQLITE_OK) {	/* Sanity check */
         fprintf(stderr, "SQL error: %s\n", errMsg);
         sqlite3_free(errMsg);
         return -1;
@@ -80,7 +67,7 @@ int insert_into_SIP(DB myDB, char** data_array){
 
 	sqlite3_stmt* stmt;
 
-	if (sqlite3_prepare_v2(myDB, insert_sql, -1, &stmt, NULL) != SQLITE_OK) {
+	if (sqlite3_prepare_v2(myDB, insert_sql, -1, &stmt, NULL) != SQLITE_OK) { /* Sanity check */
 		fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(myDB));
 		return -1;
 	}
@@ -126,15 +113,13 @@ void select_all(DB myDB){
     	content_type 	= sqlite3_column_text(stmt, 8);
     	content_length 	= sqlite3_column_text(stmt, 9);
 
-	   	// Process or print the retrieved data as needed
-    	// printf("%d\t%s\n", id, type );
+	   	/* Process or print the retrieved data as needed */
     	printf("ID:%d\nTYPE:%s\nVIA:%sFROM:%sTO:%sCALL_ID:%sCSEQ:%sMAX_FORWARDS:%sCONTENT_TYPE%sCONTENT_LENGTH%s\n", id, type, via, from, to, call_id, cseq, max_forwards, content_type, content_length);
 	}
 
 	/*Check for errors or end of data*/
 	if (rc != SQLITE_DONE)
     	fprintf(stderr, "Error reading data: %s\n", sqlite3_errmsg(myDB));
-	
 	
 	sqlite3_finalize(stmt);
 	return;
